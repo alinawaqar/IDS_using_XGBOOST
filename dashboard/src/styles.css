@@ -1,0 +1,416 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  /* --- Professional Light SaaS Palette --- */
+  --bg: #f4f7f9;           /* Slightly bluish-grey base, pure white is too harsh */
+  --panel: #ffffff;        /* Pure white for cards */
+  --panel-alt: #f8fafc;    /* Very light grey for nested items */
+  --line: #e2e8f0;         /* Subtle borders */
+  --line-dark: #cbd5e1;
+  
+  --text: #41ce81;         /* Dark Slate grey, not pure black */
+  --text-dim: #64748b;     /* Muted secondary text */
+  
+  --mono: 'IBM Plex Mono', 'Consolas', monospace;
+  --sans: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  
+  /* Semantic Colors - adjusted for Light Theme */
+  --primary:#8ccf97;      /* SaaS Blue */
+  --primary-dim: #eaf5ec;
+  --green: #10b981;
+  --green-dim: rgba(61, 226, 138, 0.1);
+  --red: #f37f7f;
+  --red-dim: rgba(48, 152, 100, 0.984);
+  --orange: #f97316;
+  --amber: #f59e0b;
+  
+  /* Pinterest Effect */
+  --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --transition: all 0.2s ease-in-out;
+}
+
+/* --- Reset & Layout --- */
+* { box-sizing: border-box; outline: none; }
+
+html, body, #root { 
+  height: 100%; 
+  margin: 0; 
+  background: var(--bg); 
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar */
+.main-content::-webkit-scrollbar,
+.feed::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
+  width: 6px; height: 6px;
+}
+.main-content::-webkit-scrollbar-thumb,
+.feed::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--line-dark);
+  border-radius: 3px;
+}
+.main-content::-webkit-scrollbar-track,
+.feed::-webkit-scrollbar-track,
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- TopBar --- */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 32px; 
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 40;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .dot { 
+  width: 10px; height: 10px; border-radius: 50%; 
+  background: var(--green); 
+  box-shadow: 0 0 10px var(--green); 
+  animation: pulseLight 2s infinite; 
+}
+.brand .dot-off { 
+  background: var(--text-dim); 
+  box-shadow: none; animation: none; 
+}
+
+@keyframes pulseLight { 
+  0%, 100% { opacity: 1; transform: scale(1); } 
+  50% { opacity: 0.7; transform: scale(1.05); } 
+}
+
+.brand h1 { font-size: 18px; font-weight: 600; margin: 0; color: var(--text); }
+.brand span { color: var(--text-dim); font-size: 13px; margin-left: 8px; font-weight: 400; }
+
+.topbar-right { display: flex; align-items: center; gap: 24px; font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+.topbar-right b { font-weight: 500; color: var(--text); }
+
+.live-toggle {
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  background: var(--panel);
+  border: 1px solid var(--line-dark); 
+  color: var(--text); padding: 8px 16px;
+  border-radius: 6px; cursor: pointer;
+  transition: var(--transition);
+}
+.live-toggle:hover { 
+  border-color: var(--primary); 
+  color: var(--primary);
+  background: var(--primary-dim);
+}
+.live-toggle:disabled { opacity: 0.5; cursor: default; }
+.live-toggle.active {
+  background: var(--primary); color: white; border-color: var(--primary);
+}
+.live-toggle.active:hover { background: #0c91d2; } /* Slightly darker blue */
+
+
+/* --- Grid System --- */
+.dashboard-grid { 
+  display: grid; 
+  grid-template-columns: 1.5fr 1fr 1fr; 
+  gap: 24px; 
+  margin-bottom: 24px;
+}
+
+.workflow-row { 
+  grid-column: 1 / -1; 
+  display: grid; 
+  grid-template-columns: 2fr 1fr; 
+  gap: 24px; 
+}
+
+/* --- Global Card Styling (Pinterest "Pins") --- */
+.card {
+  background: var(--panel); 
+  border: 1px solid rgba(0,0,0,0.03); /* almost invisible border */
+  border-radius: 12px; 
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition);
+}
+.card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.card h2 {
+  font-size: 12px; font-weight: 600; color: var(--text-dim);
+  margin: 0 0 18px 0; letter-spacing: 0.5px; text-transform: uppercase;
+  display: flex; justify-content: space-between; align-items:center;
+}
+.card h2 .tag {
+  font-family: var(--mono); font-size: 11px; padding: 4px 8px;
+  border-radius: 4px; background: var(--green-dim); color: var(--green);
+  font-weight: 500; letter-spacing: 0; text-transform: none;
+}
+
+/* Generic Stat Display inside cards */
+.stat-row { 
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--sans); font-size: 14px; color: var(--text-dim); 
+  border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px;
+}
+.stat-row b { 
+  color: var(--text); font-size: 18px; font-weight: 600; font-family: var(--mono); 
+}
+
+.status-line { 
+  display: flex; align-items: center; gap: 8px; 
+  font-family: var(--mono); font-size: 12px; margin-top: 12px; color: var(--text-dim); 
+}
+.status-line .led { width: 8px; height: 8px; border-radius: 50%; background: var(--line-dark); }
+.status-line.active .led { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+
+/* --- Threat Feed Component --- */
+.feed { 
+  display: flex; flex-direction: column; gap: 12px; 
+  max-height: 250px; overflow-y: auto; padding-right: 4px;
+}
+
+.feed-item { 
+  display: grid; grid-template-columns: auto 1fr auto; gap: 12px; 
+  align-items: center; padding: 12px; border-radius: 8px; 
+  background: var(--panel-alt); 
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--line-dark);
+  transition: var(--transition);
+}
+.feed-item:hover { border-color: var(--line-dark); }
+
+.feed-item.crit { border-left-color: var(--red); background: white; border-color: var(--line); }
+.feed-item.crit:hover { border-color: var(--red); }
+.feed-item.warn { border-left-color: var(--orange); }
+
+.feed-time { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+
+.feed-detail { font-size: 13px; font-weight: 500; color: var(--text); }
+.feed-detail .attack { font-weight: 600; color: var(--amber); }
+.feed-detail .attack.crit { color: var(--red); }
+.feed-detail .attack.warn { color: var(--orange); }
+.feed-detail .ips { 
+  font-family: var(--mono); font-size: 11px; color: var(--text-dim); 
+  display: block; margin-top: 4px; font-weight: 400;
+}
+
+.feed-action { 
+  font-family: var(--sans); font-size: 11px; font-weight: 600;
+  color: var(--primary); background: white;
+  border: 1px solid var(--line-dark); 
+  padding: 6px 10px; border-radius: 4px; white-space: nowrap; 
+  cursor: pointer; transition: var(--transition);
+}
+.feed-action:hover { border-color: var(--primary); background: var(--primary-dim); }
+
+
+/* --- Alert Overview (Donut Chart area) --- */
+.donut-wrap { display: flex; align-items: center; gap: 24px; justify-content: center; }
+
+.legend { display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--text); min-width: 120px;}
+.legend .row { display: flex; align-items: center; gap: 8px; }
+.legend .sw { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.legend .pct { 
+  font-family: var(--mono); color: var(--text-dim); 
+  margin-left: auto; padding-left: 15px; font-size: 12px; 
+}
+
+
+/* --- Forensic Archive (Pinterest Masonry) --- */
+.archive-section {
+  margin-top: 32px;
+}
+
+/* A card specifically to hold the header nicely in the grid flow */
+.archive-header-card {
+  background: transparent;
+  display: flex; justify-content: space-between; align-items: baseline; 
+  margin-bottom: 16px; padding: 0 10px;
+}
+.archive-header-card h2 { font-size: 16px; color: var(--text); margin: 0; font-weight: 600; }
+.archive-header-card .count { font-family: var(--mono); font-size: 13px; color: var(--text-dim); }
+
+/* Masonry Container */
+.masonry { 
+  columns: 4 250px; /* Pinterest columns: count and min-width */
+  column-gap: 24px; 
+  width: 100%;
+}
+
+/* Individual Pin/Card */
+.pin { 
+  break-inside: avoid; /* Essential for masonry */
+  margin-bottom: 24px; 
+  background: var(--panel); 
+  border: 1px solid rgba(0,0,0,0.02); 
+  border-radius: 12px; 
+  overflow: hidden; 
+  box-shadow: var(--shadow-card);
+  transition: var(--transition);
+}
+.pin:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
+}
+
+.pin-head { 
+  padding: 16px 18px; 
+  border-left: 4px solid var(--text-dim); 
+  background: var(--panel-alt);
+  border-bottom: 1px solid var(--line);
+}
+/* Semantic coding for pin heads */
+.pin-head.ddos { border-left-color: var(--red); }
+.pin-head.ssh { border-left-color: var(--orange); }
+.pin-head.unk { border-left-color: var(--amber); }
+.pin-head.scan { border-left-color: var(--primary); }
+
+.pin-head .label { font-size: 14px; font-weight: 600; color: var(--text); }
+.pin-head.ddos .label { color: var(--red); }
+.pin-head.ssh .label { color: var(--orange); }
+.pin-head.unk .label { color: var(--amber); }
+.pin-head.scan .label { color: var(--primary); }
+
+.pin-head .time { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-top: 5px; }
+
+.pin-body { 
+  padding: 16px 18px; 
+  font-family: var(--mono); font-size: 11px; color: var(--text-dim); 
+  line-height: 1.8; 
+}
+.pin-body strong { color: var(--text); font-weight: 500;}
+.pin-body .ip-flow { color: var(--text); font-weight: 500; }
+
+.pin-actions { display: flex; border-top: 1px solid var(--line); background: var(--panel-alt); }
+.pin-actions a { flex: 1; text-decoration: none; }
+.pin-actions button { 
+  width: 100%; background: none; border: none; 
+  color: var(--text-dim); font-family: var(--sans); font-weight: 600;
+  font-size: 12px; padding: 12px 0; cursor: pointer; 
+  transition: var(--transition);
+}
+.pin-actions a button { border-right: 1px solid var(--line); color: var(--primary); }
+.pin-actions a button:hover { background: var(--primary-dim); }
+.pin-actions button:hover { background: #f1f5f9; color: var(--text); }
+
+
+/* --- Workflow Strip Component --- */
+.flow-track { 
+  display: flex; align-items: center; 
+  overflow-x: auto; padding: 10px 0; 
+  gap: 0; /* managed by arrows */
+}
+/* Hide scrollbar for workflow */
+.flow-track::-webkit-scrollbar { display: none; }
+
+.flow-node { 
+  flex: 0 0 auto; background: var(--panel); 
+  border: 1px solid var(--line-dark); 
+  border-radius: 8px; padding: 12px 16px; 
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  text-align: center; min-width: 120px; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.flow-node .sub { display: block; color: var(--text-dim); font-size: 10px; margin-top: 4px; font-weight: 400; font-family: var(--mono); }
+
+.flow-arrow { flex: 0 0 auto; color: var(--line-dark); padding: 0 12px; font-size: 16px; }
+
+.flow-node.active { 
+  border-color: var(--green); color: var(--green); 
+  background: var(--green-dim);
+  font-weight: 600;
+}
+.flow-node.active .sub { color: var(--green); opacity: 0.8; }
+
+
+/* --- Upload Panel Component --- */
+.upload-drop {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  height: 120px; border: 2px dashed var(--line-dark); border-radius: 12px;
+  font-size: 13px; color: var(--text-dim); cursor: pointer; padding: 20px;
+  transition: var(--transition); background: var(--panel-alt);
+}
+.upload-drop:hover { 
+  border-color: var(--primary); color: var(--primary); 
+  background: var(--primary-dim);
+}
+.upload-drop i { font-size: 24px; margin-bottom: 10px; opacity: 0.5; } /* Assuming FontAwesome or similar */
+
+
+/* --- Modals --- */
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); /* Slate bg with opacity */
+  display: flex; align-items: center; justify-content: center; 
+  z-index: 100; backdrop-filter: blur(2px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal { 
+  background: var(--panel); border-radius: 16px; 
+  width: min(650px, 90vw); max-height: 85vh; 
+  display: flex; flex-direction: column; 
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--line);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-head { 
+  display: flex; justify-content: space-between; align-items: center; 
+  padding: 18px 24px; border-bottom: 1px solid var(--line); 
+  font-family: var(--sans); font-size: 16px; font-weight: 600; 
+}
+.modal-head button { 
+  background: var(--panel-alt); border: 1px solid var(--line); color: var(--text-dim); 
+  cursor: pointer; font-size: 16px; width: 30px; height: 30px; 
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+.modal-head button:hover { background: var(--red-dim); color: var(--red); border-color: transparent; }
+
+.modal-body { padding: 24px; overflow: auto; }
+.modal-body pre { 
+  font-family: var(--mono); font-size: 12px; color: var(--text); 
+  white-space: pre-wrap; word-break: break-all; 
+  background: var(--panel-alt); padding: 16px; border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+
+/* --- Responsive Breakpoints --- */
+@media (max-width: 1200px) {
+  .dashboard-grid { grid-template-columns: 1fr 1fr; }
+  .masonry { columns: 3 250px; }
+}
+
+@media (max-width: 900px) {
+  .main-content { padding: 16px; }
+  .topbar { padding: 10px 16px; }
+  .dashboard-grid { grid-template-columns: 1fr; gap: 16px;}
+  .workflow-row { grid-template-columns: 1fr; gap: 16px; }
+  .masonry { columns: 2 160px; column-gap: 16px; }
+  .pin { margin-bottom: 16px; }
+}
