@@ -414,3 +414,83 @@ html, body, #root {
   .masonry { columns: 2 160px; column-gap: 16px; }
   .pin { margin-bottom: 16px; }
 }
+/* --- Login screen --- */
+.login-wrapper {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+.login-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+  padding: 32px 28px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.login-brand {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.03em;
+}
+.login-brand span {
+  display: block;
+  font-family: var(--sans);
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.login-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.login-input {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: var(--sans);
+  font-size: 14px;
+  background: var(--panel-alt);
+}
+.login-input:focus {
+  border-color: var(--primary);
+}
+.login-error {
+  color: var(--red);
+  font-size: 12px;
+}
+.login-button {
+  background: var(--primary);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: var(--sans);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.logout-button {
+  border: 1px solid var(--line);
+  background: var(--panel-alt);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: var(--sans);
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.logout-button:hover {
+  background: var(--line);
+}

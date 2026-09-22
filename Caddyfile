@@ -1,0 +1,25 @@
+# Place this file at the root of your project (next to main.py and the
+# dashboard/ folder), then run:
+#   caddy run
+# (or install Caddy as a service so it starts on boot -- see Caddy's docs
+# for your OS). Caddy will automatically get a real HTTPS certificate for
+# this domain the first time it starts, as long as the domain's DNS A/AAAA
+# record already points at this server's public IP and ports 80+443 are
+# reachable from the internet.
+
+ids.yourdomain.com {
+    # Anything under /api/* goes to FastAPI. handle_path strips the /api
+    # prefix before forwarding, matching what vite.config.js's dev proxy
+    # already does -- so main.py's routes stay exactly as written.
+    handle_path /api/* {
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    # Everything else is the built React dashboard's static files.
+    # Build it first: cd dashboard && npm run build (outputs to dashboard/dist)
+    handle {
+        root * /full/path/to/your/project/dashboard/dist
+        try_files {path} /index.html
+        file_server
+    }
+}

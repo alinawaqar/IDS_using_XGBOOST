@@ -1,4 +1,4 @@
-export default function TopBar({ liveActive, onToggleLive, toggling, apiOk }) {
+export default function TopBar({ liveActive, onToggleLive, toggling, apiOk, onLogout }) {
   return (
     <div className="topbar">
       <div className="brand">
@@ -21,6 +21,9 @@ export default function TopBar({ liveActive, onToggleLive, toggling, apiOk }) {
         </div>
         <button className="live-toggle" onClick={onToggleLive} disabled={toggling}>
           {toggling ? "..." : liveActive ? "STOP CAPTURE" : "START CAPTURE"}
+        </button>
+        <button className="logout-button" onClick={onLogout}>
+          LOG OUT
         </button>
       </div>
     </div>

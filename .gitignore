@@ -37,12 +37,37 @@ Thumbs.db
 outputs/
 output/
 results/
-
+data/
 # Local databases
 *.db
 *.sqlite
 *.sqlite3
-
+.hash
 # Node / React
 node_modules/
 dist/
+# Runtime/generated files
+.env
+logs/
+*.pcap
+*.pcapng
+
+# CICFlowMeter generated data
+CICFlowMeter-master/input/*
+CICFlowMeter-master/output/*
+CICFlowMeter-master/test_input/*
+CICFlowMeter-master/test_output/*
+
+# Python cache
+__pycache__/
+*.pyc
+
+# CICFlowMeter build artifacts
+CICFlowMeter-master/.gradle/
+CICFlowMeter-master/build/
+
+# Java/Maven/Gradle build output
+CICFlowMeter-master/target/
+
+# Java/Maven/Gradle build output
+CICFlowMeter-master/target/

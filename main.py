@@ -11,9 +11,11 @@ from typing import Dict, Any, Optional
 import joblib
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
+
+from utils import auth
 
 # ============================================================
 # PATHS & GLOBALS
@@ -154,10 +156,24 @@ app = FastAPI(
     version="1.1.0",
 )
 
-# Dashboard (Vite dev server) runs on a different origin during development.
+# Dashboard runs on a different origin.
+# The allowed origin(s) are supplied through IDS_DASHBOARD_ORIGINS.
+# Example:
+# IDS_DASHBOARD_ORIGINS=https://ids.example.com
+# Multiple origins can be comma-separated.
+
+_raw_origins = os.environ.get("IDS_DASHBOARD_ORIGINS", "")
+
+allowed_origins = [
+    origin.strip()
+    for origin in _raw_origins.split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=os.environ.get("IDS_DASHBOARD_ORIGINS", "*").split(","),
+    allow_origins=allowed_origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -256,7 +272,47 @@ def root():
     }
 
 
-@app.post("/predict-csv")
+# ============================================================
+# AUTH ENDPOINTS
+# ============================================================
+
+@app.post("/auth/login")
+def login(request: Request, response: Response, password: str = Form(...)):
+    client_ip = request.client.host if request.client else "unknown"
+    auth._check_lockout(client_ip)
+    if not auth.verify_password(password):
+        auth._record_failure(client_ip)
+        raise HTTPException(status_code=401, detail="Incorrect password.")
+    auth.issue_session_cookie(response)
+    return {"status": "success"}
+
+
+@app.post("/auth/logout")
+def logout(response: Response):
+    auth.clear_session_cookie(response)
+    return {"status": "success"}
+
+
+@app.get("/auth/status")
+def auth_status(request: Request):
+    return {"authenticated": auth._valid_session_cookie(request)}
+
+
+@app.get("/auth/needs-setup")
+def auth_needs_setup():
+    return {"needs_setup": auth.needs_setup()}
+
+
+@app.post("/auth/setup")
+def auth_setup(response: Response, password: str = Form(...)):
+    auth.set_password(password)
+    # Log the person straight in after setup so they don't have to submit
+    # the password twice in a row.
+    auth.issue_session_cookie(response)
+    return {"status": "success"}
+
+
+@app.post("/predict-csv", dependencies=[Depends(auth.require_user_or_internal)])
 async def predict_csv(file: UploadFile = File(...), source: str = Form("csv")):
     # "live" = live_ids.py's periodic capture batches, "csv" = manual dashboard
     # upload. Anything else is treated as "csv" (see _record_batch).
@@ -349,17 +405,17 @@ async def predict_csv(file: UploadFile = File(...), source: str = Form("csv")):
             os.remove(temp_path)
 
 
-@app.post("/live/start")
+@app.post("/live/start", dependencies=[Depends(auth.require_user)])
 def start_live_ids():
     global live_ids_process
     if live_ids_process is None or live_ids_process.poll() is not None:
-        script_path = os.path.join(BASE_DIR, "live_ids.py")
+        script_path = os.path.join(BASE_DIR, "utils", "live_ids.py")
         live_ids_process = subprocess.Popen([sys.executable, script_path])
         return {"status": "success", "message": "Live continuous capture worker started."}
     return {"status": "warning", "message": "Live IDS worker is already running."}
 
 
-@app.post("/live/stop")
+@app.post("/live/stop", dependencies=[Depends(auth.require_user)])
 def stop_live_ids():
     global live_ids_process
     if live_ids_process and live_ids_process.poll() is None:
@@ -369,7 +425,7 @@ def stop_live_ids():
     return {"status": "warning", "message": "Live IDS worker is not active."}
 
 
-@app.get("/live/status")
+@app.get("/live/status", dependencies=[Depends(auth.require_user)])
 def get_live_status():
     is_running = live_ids_process is not None and live_ids_process.poll() is None
     return {"active": is_running}
@@ -389,7 +445,7 @@ def _bucket_view(bucket: dict, classes: list) -> dict:
     }
 
 
-@app.get("/stats")
+@app.get("/stats", dependencies=[Depends(auth.require_user)])
 def get_stats():
     """Session stats for live capture and manual CSV analysis, kept separate."""
     classes = label_encoder.classes_.tolist()
@@ -432,12 +488,12 @@ def _evidence_entries():
     return entries
 
 
-@app.get("/evidence")
+@app.get("/evidence", dependencies=[Depends(auth.require_user)])
 def list_evidence():
     return {"evidence_dir": EVIDENCE_DIR, "entries": _evidence_entries()}
 
 
-@app.get("/evidence/download/{filename}")
+@app.get("/evidence/download/{filename}", dependencies=[Depends(auth.require_user)])
 def download_evidence(filename: str):
     safe_name = os.path.basename(filename)  # prevent path traversal
     path = os.path.join(EVIDENCE_DIR, safe_name)
@@ -446,7 +502,7 @@ def download_evidence(filename: str):
     return FileResponse(path, filename=safe_name, media_type="application/vnd.tcpdump.pcap")
 
 
-@app.get("/evidence/features/{filename}")
+@app.get("/evidence/features/{filename}", dependencies=[Depends(auth.require_user)])
 def evidence_features(filename: str):
     safe_name = os.path.basename(filename)
     sidecar_path = os.path.join(EVIDENCE_DIR, safe_name + ".json")

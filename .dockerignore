@@ -1,0 +1,39 @@
+﻿# Environment & Git
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+
+# Python Bytecode & Cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.venv
+venv/
+
+# Node & Dashboard Dependencies
+dashboard/node_modules
+node_modules/
+dashboard.zip
+dist/
+
+# Exclude generated outputs inside CICFlowMeter, but KEEP empty folder structures
+CICFlowMeter-master/logs/*
+CICFlowMeter-master/input/*
+CICFlowMeter-master/evidence/*
+CICFlowMeter-master/target/*
+CICFlowMeter-master/build/*
+!CICFlowMeter-master/**/.gitkeep
+
+# Exclude data content while preserving directory presence
+data/*
+evidence/*
+
+# Large Binary & Log Files
+*.pcap
+*.pcapng
+*.csv
+*.zip
+*.log
