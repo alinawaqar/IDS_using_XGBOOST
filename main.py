@@ -348,7 +348,18 @@ async def predict_csv(file: UploadFile = File(...), source: str = Form("csv")):
             confidences = np.ones(len(preds_encoded))
 
         raw_labels = label_encoder.inverse_transform(preds_encoded.astype(int))
+        print("\n========== LIVE PREDICTION DEBUG ==========")
+        print("Raw prediction distribution:")
+        print(pd.Series(raw_labels).value_counts())
 
+        print("\nConfidence statistics:")
+        print(pd.Series(confidences).describe())
+
+        print("\nFirst 10 predictions:")
+        for label, conf in zip(raw_labels[:10], confidences[:10]):
+            print(f"{label}: {conf:.4f}")
+
+        print("===========================================\n")
         # Open-set classification: Low confidence (<0.75) flagged as UNKNOWN_ATTACK
         final_labels = [
             label if (label == "BENIGN" or conf >= 0.75) else "UNKNOWN_ATTACK"

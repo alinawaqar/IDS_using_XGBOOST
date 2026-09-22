@@ -23,8 +23,6 @@ dist/
 CICFlowMeter-master/logs/*
 CICFlowMeter-master/input/*
 CICFlowMeter-master/evidence/*
-CICFlowMeter-master/target/*
-CICFlowMeter-master/build/*
 !CICFlowMeter-master/**/.gitkeep
 
 # Exclude data content while preserving directory presence
